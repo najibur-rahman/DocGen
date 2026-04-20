@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>DocGen AI V2</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{width:420px;min-height:580px;max-height:620px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;color:#111;background:#fff;overflow-y:auto}
+    .screen{display:none}.screen.active{display:block}
+    /* Header */
+    .hdr{background:linear-gradient(135deg,#534AB7,#3C3489);color:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+    .hdr-logo{display:flex;align-items:center;gap:8px;font-weight:600;font-size:14px}
+    .hdr-icon{width:26px;height:26px;background:rgba(255,255,255,0.2);border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px}
+    .hdr-badge{font-size:10px;background:rgba(255,255,255,0.2);border-radius:99px;padding:2px 8px}
+    /* Buttons */
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:8px 14px;border-radius:9px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid transparent;transition:all .15s}
+    .btn-p{background:#534AB7;color:#fff;width:100%;padding:10px;border-radius:10px}
+    .btn-p:hover{background:#3C3489}.btn-p:disabled{opacity:.4;cursor:not-allowed}
+    .btn-s{background:#fff;color:#374151;border-color:#e5e7eb;width:100%;padding:9px;border-radius:10px}
+    .btn-s:hover{background:#f9fafb}
+    .btn-g{background:none;border:none;color:#6b7280;cursor:pointer;font-size:12px;padding:4px 8px;border-radius:7px}
+    .btn-g:hover{background:#f3f4f6}
+    /* Body */
+    .body{padding:14px 16px}
+    /* Fields */
+    .field{margin-bottom:10px}
+    .field label{display:block;font-size:10px;font-weight:600;color:#6b7280;margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em}
+    input,textarea,select{width:100%;padding:7px 10px;border:1px solid #e5e7eb;border-radius:8px;font-size:12px;font-family:inherit;background:#fff;color:#111;outline:none;transition:border-color .15s}
+    input:focus,textarea:focus,select:focus{border-color:#534AB7}
+    textarea{resize:vertical;min-height:56px}
+    .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    /* Progress */
+    .prog-wrap{padding:8px 16px 0}
+    .prog-meta{display:flex;justify-content:space-between;font-size:10px;color:#9ca3af;margin-bottom:4px}
+    .prog-bar{height:3px;background:#f3f4f6;border-radius:99px}
+    .prog-fill{height:3px;background:#534AB7;border-radius:99px;transition:width .3s}
+    /* Doc cards */
+    .doc-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+    .doc-card{border:1.5px solid #e5e7eb;border-radius:10px;padding:9px;cursor:pointer;transition:all .15s;background:#fff;text-align:left}
+    .doc-card:hover,.doc-card.sel{border-color:#534AB7;background:#EEEDFE}
+    .doc-card .ic{font-size:16px;margin-bottom:3px}
+    .doc-card .ti{font-weight:600;font-size:11px}
+    .doc-card .su{font-size:10px;color:#9ca3af;margin-top:1px}
+    /* Alerts */
+    .alert{padding:7px 10px;border-radius:8px;font-size:11px;margin-bottom:8px}
+    .a-info{background:#EEF2FF;color:#3730a3}
+    .a-ok{background:#ecfdf5;color:#065f46}
+    .a-err{background:#fef2f2;color:#991b1b}
+    .a-warn{background:#fffbeb;color:#92400e}
+    /* Output */
+    .out-box{background:#f9fafb;border:1px solid #e5e7eb;border-radius:9px;padding:10px;font-size:11px;line-height:1.8;white-space:pre-wrap;max-height:260px;overflow-y:auto;margin-bottom:8px;color:#1f2937}
+    /* Tabs */
+    .tabs{display:flex;gap:2px;background:#f3f4f6;padding:3px;border-radius:8px;margin-bottom:10px}
+    .tab{flex:1;text-align:center;padding:5px;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;color:#6b7280;transition:all .15s}
+    .tab.act{background:#fff;color:#111;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+    /* Loading */
+    .load-wrap{padding:36px 16px;text-align:center}
+    .spinner{width:36px;height:36px;border:3px solid #e5e7eb;border-top-color:#534AB7;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    /* Step pills */
+    .step-pills{display:flex;gap:3px;padding:7px 16px 0;flex-wrap:wrap}
+    .sp{font-size:10px;padding:2px 7px;border-radius:99px}
+    .sp-done{background:#EEF2FF;color:#534AB7}
+    .sp-act{background:#534AB7;color:#fff}
+    .sp-pend{background:#f3f4f6;color:#9ca3af}
+    /* Nav */
+    .nav-row{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-top:1px solid #f3f4f6;background:#fff;position:sticky;bottom:0}
+    /* Score ring */
+    .score-wrap{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+    /* Mode cards */
+    .mode-card{border:1.5px solid #e5e7eb;border-radius:9px;padding:8px 10px;cursor:pointer;transition:all .15s;text-align:left;background:#fff;flex:1}
+    .mode-card.sel{border-color:#534AB7;background:#EEEDFE}
+    /* Version cards */
+    .ver-card{border:1.5px solid #e5e7eb;border-radius:9px;padding:9px;cursor:pointer;transition:all .15s;margin-bottom:6px;text-align:left;width:100%}
+    .ver-card.sel{border-color:#534AB7;background:#EEEDFE}
+    .word-ct{font-size:10px;color:#9ca3af}
+    .sec-title{font-size:12px;font-weight:600;margin-bottom:8px}
+  </style>
+</head>
+<body>
+
+<!-- Screen 0: Home -->
+<div id="s0" class="screen active">
+  <div class="hdr">
+    <div class="hdr-logo"><div class="hdr-icon">D</div>DocGen AI</div>
+    <span class="hdr-badge">v2.0 · Gemini</span>
+  </div>
+  <div class="body">
+    <p style="font-size:11px;color:#6b7280;margin-bottom:10px">কী বানাতে চাও?</p>
+    <div class="doc-grid" id="docGrid">
+      <button class="doc-card" onclick="selDoc('cv',this)"><div class="ic">📄</div><div class="ti">CV</div><div class="su">Full academic CV</div></button>
+      <button class="doc-card" onclick="selDoc('resume',this)"><div class="ic">📋</div><div class="ti">Resume</div><div class="su">1-page ATS</div></button>
+      <button class="doc-card" onclick="selDoc('sop',this)"><div class="ic">🎓</div><div class="ti">SOP</div><div class="su">Statement of Purpose</div></button>
+      <button class="doc-card" onclick="selDoc('cover',this)"><div class="ic">✉️</div><div class="ti">Cover Letter</div><div class="su">Job application</div></button>
+      <button class="doc-card" onclick="selDoc('linkedin',this)" style="grid-column:1/-1"><div class="ic">💼</div><div class="ti">LinkedIn Bio</div><div class="su">About section & headline</div></button>
+    </div>
+    <div style="margin-top:12px"><button class="btn btn-p" id="startBtn" onclick="startWiz()" disabled>শুরু করো →</button></div>
+    <p style="text-align:center;font-size:10px;color:#d1d5db;margin-top:6px">Powered by Gemini 2.0 Flash</p>
+  </div>
+</div>
+
+<!-- Screen 1: Wizard -->
+<div id="s1" class="screen">
+  <div class="hdr">
+    <div class="hdr-logo"><div class="hdr-icon">D</div><span id="wizLabel">CV</span></div>
+    <button class="btn-g" style="color:#fff;opacity:.8" onclick="goHome()">✕</button>
+  </div>
+  <div class="prog-wrap">
+    <div class="prog-meta"><span id="stepLbl">Step 1 of 6</span><span id="stepNm">Personal</span></div>
+    <div class="prog-bar"><div class="prog-fill" id="pFill" style="width:16%"></div></div>
+  </div>
+  <div class="step-pills" id="sPills"></div>
+  <div class="body" id="wizBody" style="padding-bottom:60px"></div>
+  <div class="nav-row">
+    <button class="btn-g" onclick="wizBack()">← Back</button>
+    <button class="btn btn-p" style="width:auto;padding:8px 18px" onclick="wizNext()" id="nxtBtn">Next →</button>
+  </div>
+</div>
+
+<!-- Screen 2: Generating -->
+<div id="s2" class="screen">
+  <div class="hdr"><div class="hdr-logo"><div class="hdr-icon">D</div>Generating...</div></div>
+  <div class="load-wrap">
+    <div class="spinner"></div>
+    <p style="font-weight:600;font-size:13px;margin-bottom:6px" id="genMsg">AI তোমার document তৈরি করছে...</p>
+    <p style="color:#9ca3af;font-size:11px" id="genSub">১৫–৩০ সেকেন্ড লাগতে পারে</p>
+    <div id="verBadges" style="display:none;margin-top:12px;display:flex;justify-content:center;gap:6px">
+      <span style="font-size:10px;background:#EEEDFE;color:#534AB7;border-radius:99px;padding:2px 8px">Confident</span>
+      <span style="font-size:10px;background:#EEEDFE;color:#534AB7;border-radius:99px;padding:2px 8px">Formal</span>
+      <span style="font-size:10px;background:#EEEDFE;color:#534AB7;border-radius:99px;padding:2px 8px">Warm</span>
+    </div>
+  </div>
+</div>
+
+<!-- Screen 3: Version Picker -->
+<div id="s3v" class="screen">
+  <div class="hdr"><div class="hdr-logo"><div class="hdr-icon">D</div>3 Versions Ready!</div></div>
+  <div class="body">
+    <p style="font-size:11px;color:#6b7280;margin-bottom:10px">কোন version পছন্দ? Select করো:</p>
+    <div id="verList"></div>
+    <button class="btn btn-p" onclick="pickVersion()" style="margin-top:8px">এই version দিয়ে continue →</button>
+  </div>
+</div>
+
+<!-- Screen 3: Output -->
+<div id="s3" class="screen">
+  <div class="hdr">
+    <div class="hdr-logo"><div class="hdr-icon">D</div><span id="outLbl">CV</span><span class="hdr-badge" style="background:rgba(16,185,129,.3)">Ready</span></div>
+    <button class="btn-g" style="color:#fff;opacity:.8" onclick="goHome()">✕</button>
+  </div>
+  <div class="body">
+    <div class="tabs">
+      <div class="tab act" onclick="swTab('preview',this)">👁 Preview</div>
+      <div class="tab" onclick="swTab('ats',this)">🤖 ATS</div>
+      <div class="tab" onclick="swTab('export',this)">📤 Export</div>
+    </div>
+
+    <!-- Preview tab -->
+    <div id="tabPreview">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span class="word-ct" id="wdCt">0 words</span>
+        <div style="display:flex;gap:6px">
+          <button class="btn-g" style="font-size:11px;color:#534AB7" onclick="copyOut()">⧉ Copy</button>
+          <button class="btn-g" style="font-size:11px;color:#534AB7" onclick="regen()">↺ Regen</button>
+        </div>
+      </div>
+      <div class="out-box" id="outBox"></div>
+    </div>
+
+    <!-- ATS tab -->
+    <div id="tabAts" style="display:none">
+      <div id="atsResult">
+        <button class="btn btn-s" onclick="runATS()" style="margin-bottom:8px">🤖 Run ATS Check</button>
+        <p style="font-size:11px;color:#9ca3af">তোমার document কতটা ATS-friendly সেটা check করো।</p>
+      </div>
+    </div>
+
+    <!-- Export tab -->
+    <div id="tabExport" style="display:none">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
+        <button class="btn btn-p" style="font-size:11px" onclick="dlTxt()">📋 Download .txt</button>
+        <button class="btn btn-s" style="font-size:11px" onclick="openWeb()">🌐 Open Web App</button>
+      </div>
+      <p style="font-size:10px;color:#9ca3af;text-align:center">PDF ও DOCX এর জন্য web app এ খোলো</p>
+    </div>
+
+    <div id="copyMsg" class="alert a-ok" style="display:none;margin-top:6px">Copied!</div>
+    <div id="errMsg" class="alert a-err" style="display:none;margin-top:6px"></div>
+  </div>
+</div>
+
+<script src="popup.js"></script>
+</body>
+</html>
